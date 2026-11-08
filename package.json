@@ -1,0 +1,23 @@
+{
+  "name": "pit-mcp",
+  "version": "0.1.0",
+  "description": "Read-only MCP toolkit for watching Robinhood Chain — pool prices, trending seats, token info. The Pit never holds funds and never signs.",
+  "license": "MIT",
+  "type": "module",
+  "bin": { "pit": "./dist/index.js" },
+  "files": ["dist", "SPEC.md", "README.md", "CHANGELOG.md"],
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node test/smoke.mjs",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "@types/node": "^22.0.0"
+  }
+}
