@@ -20,30 +20,42 @@ async function gtFetch(path: string, ttlMs: number): Promise<unknown> {
   const hit = cache.get(key);
   if (hit && Date.now() - hit.at < ttlMs) return hit.data;
   const url = `${GT_BASE}${path}`;
-  let res: Response;
-  try {
-    res = await fetch(url, {
-      headers: { Accept: "application/json" },
-      signal: AbortSignal.timeout(10000),
-    });
-  } catch (e) {
-    if (hit) return hit.data; // 上次成功值兜底（标注 stale 由调用方处理）
-    throw new Error(`GeckoTerminal unreachable: ${(e as Error).message}`);
-  }
-  if (res.status === 429) {
-    await new Promise((r) => setTimeout(r, 2100)); // 退避一次
-    res = await fetch(url, {
-      headers: { Accept: "application/json" },
-      signal: AbortSignal.timeout(10000),
-    });
-  }
-  if (!res.ok) {
+  // 429 指数退避 ×3（2s/5s/10s）+ 尊重 Retry-After；全部失败 → 上次成功值或诚实报错
+  const waits = [2000, 5000, 10000];
+  let lastErr: Error | null = null;
+  for (let attempt = 0; attempt <= waits.length; attempt++) {
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        headers: { Accept: "application/json" },
+        signal: AbortSignal.timeout(10000),
+      });
+    } catch (e) {
+      lastErr = new Error(`GeckoTerminal unreachable: ${(e as Error).message}`);
+      if (hit) return hit.data;
+      if (attempt < waits.length) {
+        await new Promise((r) => setTimeout(r, waits[attempt]));
+        continue;
+      }
+      throw lastErr;
+    }
+    if (res.ok) {
+      const j = await res.json();
+      cache.set(key, { data: j, at: Date.now() });
+      return j;
+    }
+    if (res.status === 429 && attempt < waits.length) {
+      const ra = Number(res.headers.get("retry-after"));
+      const wait = Number.isFinite(ra) && ra > 0 ? Math.min(ra * 1000, 15000) : waits[attempt];
+      await new Promise((r) => setTimeout(r, wait));
+      continue;
+    }
+    lastErr = new Error(`GeckoTerminal HTTP ${res.status}`);
     if (hit) return hit.data;
-    throw new Error(`GeckoTerminal HTTP ${res.status}`);
+    throw lastErr;
   }
-  const j = await res.json();
-  cache.set(key, { data: j, at: Date.now() });
-  return j;
+  if (hit) return hit.data;
+  throw lastErr ?? new Error("GeckoTerminal unavailable");
 }
 
 export async function getPools(): Promise<Pool[]> {
