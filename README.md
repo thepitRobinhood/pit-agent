@@ -10,6 +10,7 @@ read-only by construction — no transactions, no private keys, no model proxyin
 ## Install (once published to npm)
 
 ```bash
+npm install -g @thepitrobinhood/pit-mcp
 claude mcp add pit -- pit mcp
 ```
 

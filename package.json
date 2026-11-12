@@ -1,12 +1,21 @@
 {
-  "name": "pit-mcp",
+  "name": "@thepitrobinhood/pit-mcp",
   "version": "0.1.0",
   "description": "Read-only MCP toolkit for watching Robinhood Chain — pool prices, trending seats, token info. The Pit never holds funds and never signs.",
   "license": "MIT",
   "type": "module",
-  "bin": { "pit": "./dist/index.js" },
-  "files": ["dist", "SPEC.md", "README.md", "CHANGELOG.md"],
-  "engines": { "node": ">=18" },
+  "bin": {
+    "pit": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "SPEC.md",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "tsc",
     "test": "npm run build && node test/smoke.mjs",
@@ -19,5 +28,13 @@
   "devDependencies": {
     "typescript": "^5.5.0",
     "@types/node": "^22.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thepitRobinhood/pit-agent.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }
