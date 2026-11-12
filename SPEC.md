@@ -57,5 +57,5 @@ Semver. MCP protocol target: `2025-03-26` (pinned via `@modelcontextprotocol/sdk
 ## 5. Open questions
 
 1. Should a canonical RH token list exist (curation vs on-chain discovery only)?
-2. Feed endpoint on thepit.com (Route A) — demand-driven; would reuse the same normalization.
+2. Feed endpoint on thepit.com (Route A) — CLOSED (2026-11-12): the data is public, agents read GT/RPC directly; this toolkit is the access layer. No proxy — no shared rate limits, no SLA on our side.
 3. Access gating for pro tools if $PIT ships — separate evaluation; this spec does not assume it.
